@@ -2,7 +2,7 @@ package logic
 
 import (
 	"context"
-	"google.golang.org/grpc/status"
+	"mini-titok/common/xcode"
 	"mini-titok/service/user/model"
 	"mini-titok/service/user/rpc/userclient"
 
@@ -29,10 +29,11 @@ func (l *GetUserInfoLogic) GetUserInfo(in *userclient.UserInfoRequest) (*usercli
 	res, err := l.svcCtx.UserModel.FindOne(l.ctx, in.UserId)
 	if err != nil {
 		if err == model.ErrNotFound {
-			return nil, status.Error(100, "用户不存在")
+			return nil, xcode.RecordNotFound
 		}
-		return nil, status.Error(500, err.Error())
+		return nil, xcode.DBErr
 	}
+	logx.Info(res)
 	userInfo := &userclient.UserInfo{
 		Id:              res.Id,
 		Name:            res.Name,
@@ -47,8 +48,6 @@ func (l *GetUserInfoLogic) GetUserInfo(in *userclient.UserInfoRequest) (*usercli
 		FavoriteCount:   &res.FavoriteCount,
 	}
 	return &userclient.UserInfoResponse{
-		StatusCode: 200,
-		StatusMsg:  nil,
-		UserInfo:   userInfo,
+		UserInfo: userInfo,
 	}, nil
 }

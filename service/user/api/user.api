@@ -1,3 +1,8 @@
+type BasicResponse {
+	StatusCode int32  `json:"status_code"`
+	StatusMsg  string `json:"status_msg"`
+}
+
 type (
 	// 用户登录
 	LoginRequest {
@@ -5,8 +10,7 @@ type (
 		Password string `json:"password"`
 	}
 	LoginResponse {
-		StatusCode  int32  `json:"statusCode"`
-		StatusMsg   string `json:"statusMsg"`
+		BasicResponse
 		UserId      int64  `json:"userId"`
 		AccessToken string `json:"accessToken"`
 	}
@@ -17,14 +21,11 @@ type (
 		Password string `json:"password"`
 	}
 	RegisterResponse {
-		StatusCode  int32  `json:"statusCode"`
-		StatusMsg   string `json:"statusMsg"`
+		BasicResponse
 		UserId      int64  `json:"userId"`
 		AccessToken string `json:"accessToken"`
 	}
-	// 用户注册
-	// 用户信息
-	UserInfoResponse {
+	User {
 		Id              int64  `json:"id"`
 		Name            string `json:"name"`
 		FollowCount     int64  `json:"followCount"`
@@ -37,22 +38,38 @@ type (
 		WorkCount       int64  `json:"workCount"`
 		FavoriteCount   int64  `json:"FavoriteCount"`
 	}
+	// 用户注册
+	UserInfoRequest {
+		Id    int64  `form:"id"`
+		Token string `form:"token"`
+	}
+	// 用户信息
+	UserInfoResponse {
+		BasicResponse
+		user User `json:"user"`
+	}
 // 用户信息
 )
 
+@server (
+	group:  user
+	prefix: /douyin/user
+)
 service User {
 	@handler Login
-	post /douyin/user/login (LoginRequest) returns (LoginResponse)
+	post /login (LoginRequest) returns (LoginResponse)
 
 	@handler Register
-	post /douyin/user/register (RegisterRequest) returns (RegisterResponse)
+	post /register (RegisterRequest) returns (RegisterResponse)
 }
 
 @server (
-	jwt: Auth
+	group:      user
+	prefix:     /douyin/user
+	middleware: JwtAuth
 )
 service User {
 	@handler UserInfo
-	post /douyin/user/userinfo returns (UserInfoResponse)
+	get /userinfo (UserInfoRequest) returns (UserInfoResponse)
 }
 

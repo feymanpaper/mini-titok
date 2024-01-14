@@ -2,11 +2,12 @@ package logic
 
 import (
 	"context"
+	"github.com/zeromicro/go-zero/core/logx"
+	"mini-titok/common/jwtx"
+	"mini-titok/common/xcode"
 	"mini-titok/service/user/api/internal/svc"
 	"mini-titok/service/user/api/internal/types"
 	userclient "mini-titok/service/user/rpc/userclient"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type RegisterLogic struct {
@@ -31,10 +32,16 @@ func (l *RegisterLogic) Register(req *types.RegisterRequest) (resp *types.Regist
 	if err != nil {
 		return nil, err
 	}
+	tokenString, err := jwtx.CreateToken(res.UserId, l.svcCtx.Config.JwtAuth.AccessSecret, l.svcCtx.Config.JwtAuth.AccessExpire)
+	if err != nil {
+		return nil, xcode.FailGenerateJwt
+	}
 	return &types.RegisterResponse{
-		StatusCode:  res.StatusCode,
-		StatusMsg:   *res.StatusMsg,
+		BasicResponse: types.BasicResponse{
+			StatusCode: 0,
+			StatusMsg:  "success",
+		},
 		UserId:      res.UserId,
-		AccessToken: res.Token,
+		AccessToken: tokenString,
 	}, nil
 }

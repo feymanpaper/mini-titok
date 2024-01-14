@@ -38,9 +38,7 @@ func (l *LoginLogic) Login(in *userclient.LoginRequest) (*userclient.LoginRespon
 		return nil, status.Error(100, "密码错误")
 	}
 	return &userclient.LoginResponse{
-		StatusCode: 200,
-		StatusMsg:  nil,
-		UserId:     res.Id,
-		Token:      "123",
+		UserId: res.Id,
+		Token:  "123",
 	}, nil
 }

@@ -57,10 +57,8 @@ func (l *RegisterLogic) Register(in *userclient.RegisterRequest) (*userclient.Re
 		}
 
 		return &userclient.RegisterResponse{
-			StatusCode: 200,
-			StatusMsg:  nil,
-			UserId:     newUser.Id,
-			Token:      "123",
+			UserId: newUser.Id,
+			Token:  "123",
 		}, nil
 	}
 	return nil, status.Error(500, err.Error())

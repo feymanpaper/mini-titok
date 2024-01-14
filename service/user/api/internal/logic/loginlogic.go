@@ -3,11 +3,10 @@ package logic
 import (
 	"context"
 	"mini-titok/common/jwtx"
-	"mini-titok/service/user/rpc/userclient"
-	"time"
-
+	"mini-titok/common/xcode"
 	"mini-titok/service/user/api/internal/svc"
 	"mini-titok/service/user/api/internal/types"
+	"mini-titok/service/user/rpc/userclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -34,16 +33,18 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 	if err != nil {
 		return nil, err
 	}
-	now := time.Now().Unix()
-	accessExpire := l.svcCtx.Config.Auth.AccessExpire
-	accessToken, err := jwtx.GetToken(l.svcCtx.Config.Auth.AccessSecret, now, accessExpire, res.UserId)
+
+	tokenString, err := jwtx.CreateToken(res.UserId, l.svcCtx.Config.JwtAuth.AccessSecret, l.svcCtx.Config.JwtAuth.AccessExpire)
 	if err != nil {
-		return nil, err
+		return nil, xcode.FailGenerateJwt
 	}
+
 	return &types.LoginResponse{
-		StatusCode:  res.StatusCode,
-		StatusMsg:   *res.StatusMsg,
+		BasicResponse: types.BasicResponse{
+			StatusCode: 0,
+			StatusMsg:  "success",
+		},
 		UserId:      res.UserId,
-		AccessToken: accessToken,
+		AccessToken: tokenString,
 	}, nil
 }

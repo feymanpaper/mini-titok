@@ -11,7 +11,7 @@ CREATE TABLE `user` (
     `total_favorited` bigint(64) unsigned NOT NULL DEFAULT '0' COMMENT '用户获赞数量',
     `work_count` bigint(64) unsigned NOT NULL DEFAULT '0' COMMENT '用户获赞数量',
     `favorite_count` bigint(64) unsigned NOT NULL DEFAULT '0' COMMENT '用户点赞数量',
-    `password` varchar(32)  NOT NULL DEFAULT '' COMMENT '用户密码',
+    `password` varchar(64)  NOT NULL DEFAULT '' COMMENT '用户密码',
     `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),

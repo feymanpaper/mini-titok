@@ -8,8 +8,6 @@ message RegisterRequest {
 }
 
 message RegisterResponse {
-  int32 StatusCode = 1; // 状态码，0-成功，其他值-失败
-  optional string StatusMsg = 2; // 返回状态描述
   int64 UserId = 3; // 用户id
   string Token = 4; // 用户鉴权token
 }
@@ -20,8 +18,6 @@ message LoginRequest {
 }
 
 message LoginResponse {
-  int32 StatusCode = 1; // 状态码，0-成功，其他值-失败
-  optional string StatusMsg = 2; // 返回状态描述
   int64 UserId = 3; // 用户id
   string Token = 4; // 用户鉴权token
 }
@@ -32,8 +28,6 @@ message UserInfoRequest {
 }
 
 message UserInfoResponse {
-  int32 StatusCode= 1; // 状态码，0-成功，其他值-失败
-  optional string StatusMsg = 2; // 返回状态描述
   UserInfo userInfo = 3; // 用户信息
 }
 

@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/zrpc"
+	"mini-titok/common/consul"
 )
 
 type Config struct {
@@ -12,4 +13,5 @@ type Config struct {
 	}
 	CacheRedis cache.CacheConf
 	Salt       string
+	Consul     consul.Conf
 }
