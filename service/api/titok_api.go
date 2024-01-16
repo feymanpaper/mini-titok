@@ -6,16 +6,15 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"mini-titok/common/consul"
 	"mini-titok/common/xcode"
-
-	"mini-titok/service/user/api/internal/config"
-	"mini-titok/service/user/api/internal/handler"
-	"mini-titok/service/user/api/internal/svc"
+	"mini-titok/service/api/internal/config"
+	"mini-titok/service/api/internal/handler"
+	"mini-titok/service/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
 )
 
-var configFile = flag.String("f", "etc/user.yaml", "the config file")
+var configFile = flag.String("f", "etc/titok_api.yaml", "the config file")
 
 func main() {
 	flag.Parse()
