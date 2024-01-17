@@ -4,8 +4,8 @@ import (
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/zrpc"
 	"mini-titok/common/interceptors"
-	"mini-titok/service/user/api/internal/config"
-	"mini-titok/service/user/api/internal/middleware"
+	"mini-titok/service/api/internal/config"
+	"mini-titok/service/api/internal/middleware"
 	"mini-titok/service/user/rpc/user"
 )
 

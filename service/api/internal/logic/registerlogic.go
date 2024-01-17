@@ -5,8 +5,8 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"mini-titok/common/jwtx"
 	"mini-titok/common/xcode"
-	"mini-titok/service/user/api/internal/svc"
-	"mini-titok/service/user/api/internal/types"
+	"mini-titok/service/api/internal/svc"
+	"mini-titok/service/api/internal/types"
 	userclient "mini-titok/service/user/rpc/userclient"
 )
 

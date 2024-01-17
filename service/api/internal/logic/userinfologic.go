@@ -2,10 +2,9 @@ package logic
 
 import (
 	"context"
+	"mini-titok/service/api/internal/svc"
+	"mini-titok/service/api/internal/types"
 	"mini-titok/service/user/rpc/userclient"
-
-	"mini-titok/service/user/api/internal/svc"
-	"mini-titok/service/user/api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )

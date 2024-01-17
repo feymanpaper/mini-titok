@@ -1,4 +1,4 @@
-Name: User
+Name: TitokApi
 Host: 0.0.0.0
 Port: 8888
 
@@ -14,11 +14,11 @@ UserRpc:
 
 Consul:
   Host: 127.0.0.1:8500
-  Key: user-api
+  Key: titok-api
   Meta:
     env: test
     service_group: feyman
-    service_name: user-api
+    service_name: titok-api
 
 Prometheus:
   Host: 0.0.0.0
@@ -26,7 +26,7 @@ Prometheus:
   Path: /metrics
 
 Telemetry:
-  Name: user.api
+  Name: titok.api
   Endpoint: http://localhost:14268/api/traces
   Sampler: 1.0
   Batcher: jaeger

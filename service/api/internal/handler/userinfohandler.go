@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"mini-titok/service/user/api/internal/types"
+	"mini-titok/service/api/internal/logic"
+	"mini-titok/service/api/internal/svc"
+	"mini-titok/service/api/internal/types"
 	"net/http"
 
 	"github.com/zeromicro/go-zero/rest/httpx"
-	"mini-titok/service/user/api/internal/logic"
-	"mini-titok/service/user/api/internal/svc"
 )
 
 func UserInfoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

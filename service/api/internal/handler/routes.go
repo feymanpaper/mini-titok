@@ -2,9 +2,8 @@
 package handler
 
 import (
+	"mini-titok/service/api/internal/svc"
 	"net/http"
-
-	"mini-titok/service/user/api/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
 )
