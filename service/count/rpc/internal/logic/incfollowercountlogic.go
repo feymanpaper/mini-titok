@@ -2,6 +2,9 @@ package logic
 
 import (
 	"context"
+	"encoding/json"
+	"github.com/zeromicro/go-zero/core/threading"
+	"mini-titok/service/count/rpc/internal/types"
 
 	"mini-titok/service/count/rpc/countclient"
 	"mini-titok/service/count/rpc/internal/svc"
@@ -28,5 +31,19 @@ func (l *IncFollowerCountLogic) IncFollowerCount(in *countclient.IncFollowerCoun
 	if err != nil {
 		return nil, err
 	}
+	msg := types.AddCountMsg{
+		UserId: in.UserId,
+	}
+	// 发送kafka消息, 异步
+	threading.GoSafe(func() {
+		data, err := json.Marshal(msg)
+		if err != nil {
+			return
+		}
+		err = l.svcCtx.KqPusherClient.Push(string(data))
+		if err != nil {
+			return
+		}
+	})
 	return &countclient.IncFollowerCountResponse{}, nil
 }

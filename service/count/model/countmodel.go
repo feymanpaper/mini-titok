@@ -19,8 +19,9 @@ type (
 		countModel
 		IncCacheFollowerCount(ctx context.Context, id int64) error
 		DecCacheFollowerCount(ctx context.Context, id int64) error
-		InsertOrUpdateDBFollowerCount(ctx context.Context, id int64) error
 		FindCahceorDBFollowerCount(ctx context.Context, id int64) (int64, error)
+		InsertDBFollowerCount(ctx context.Context, id int64) error
+		IncDBFollowerCount(ctx context.Context, id int64) error
 	}
 
 	customCountModel struct {
@@ -89,7 +90,22 @@ func (m *customCountModel) DecCacheFollowerCount(ctx context.Context, id int64) 
 	return nil
 }
 
-func (m *customCountModel) InsertOrUpdateDBFollowerCount(ctx context.Context, id int64) error {
-	//TODO implement me
-	panic("implement me")
+func (m *customCountModel) InsertDBFollowerCount(ctx context.Context, id int64) error {
+	countkey := fmt.Sprintf("%s%v", cacheFollowerCountIdPrefix, id)
+	query := fmt.Sprintf("insert into %s (`count_key`, `count_val`) values (?, ?)", m.table)
+	_, err := m.sqlConn.ExecCtx(ctx, query, countkey, 0)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *customCountModel) IncDBFollowerCount(ctx context.Context, id int64) error {
+	countkey := fmt.Sprintf("%s%v", cacheFollowerCountIdPrefix, id)
+	query := fmt.Sprintf("update %s set `count_val` = `count_val` + 1 where `count_key` = ?", m.table)
+	_, err := m.sqlConn.ExecCtx(ctx, query, countkey)
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -19,11 +19,14 @@ type (
 	GetFollowerCountResponse = countclient.GetFollowerCountResponse
 	IncFollowerCountRequest  = countclient.IncFollowerCountRequest
 	IncFollowerCountResponse = countclient.IncFollowerCountResponse
+	InsertUserCountRequest   = countclient.InsertUserCountRequest
+	InsertUserCountResponse  = countclient.InsertUserCountResponse
 
 	Count interface {
 		IncFollowerCount(ctx context.Context, in *IncFollowerCountRequest, opts ...grpc.CallOption) (*IncFollowerCountResponse, error)
 		DecFollowerCount(ctx context.Context, in *DecFollowerCountRequest, opts ...grpc.CallOption) (*DecFollowerCountResponse, error)
 		GetFollowerCount(ctx context.Context, in *GetFollowerCountRequest, opts ...grpc.CallOption) (*GetFollowerCountResponse, error)
+		InsertUserCount(ctx context.Context, in *InsertUserCountRequest, opts ...grpc.CallOption) (*InsertUserCountResponse, error)
 	}
 
 	defaultCount struct {
@@ -50,4 +53,9 @@ func (m *defaultCount) DecFollowerCount(ctx context.Context, in *DecFollowerCoun
 func (m *defaultCount) GetFollowerCount(ctx context.Context, in *GetFollowerCountRequest, opts ...grpc.CallOption) (*GetFollowerCountResponse, error) {
 	client := countclient.NewCountClient(m.cli.Conn())
 	return client.GetFollowerCount(ctx, in, opts...)
+}
+
+func (m *defaultCount) InsertUserCount(ctx context.Context, in *InsertUserCountRequest, opts ...grpc.CallOption) (*InsertUserCountResponse, error) {
+	client := countclient.NewCountClient(m.cli.Conn())
+	return client.InsertUserCount(ctx, in, opts...)
 }

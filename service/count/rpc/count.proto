@@ -25,9 +25,16 @@ message GetFollowerCountResponse{
   int64 FollowerCount = 1; // 用户id
 }
 
+message InsertUserCountRequest{
+  int64 UserId = 1;
+}
+
+message InsertUserCountResponse{}
+
 
 service Count {
   rpc IncFollowerCount(IncFollowerCountRequest) returns (IncFollowerCountResponse);
   rpc DecFollowerCount(DecFollowerCountRequest) returns (DecFollowerCountResponse);
   rpc GetFollowerCount(GetFollowerCountRequest) returns (GetFollowerCountResponse);
+  rpc InsertUserCount(InsertUserCountRequest) returns (InsertUserCountResponse);
 }

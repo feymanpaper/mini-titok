@@ -22,6 +22,7 @@ const (
 	Count_IncFollowerCount_FullMethodName = "/count.Count/IncFollowerCount"
 	Count_DecFollowerCount_FullMethodName = "/count.Count/DecFollowerCount"
 	Count_GetFollowerCount_FullMethodName = "/count.Count/GetFollowerCount"
+	Count_InsertUserCount_FullMethodName  = "/count.Count/InsertUserCount"
 )
 
 // CountClient is the client API for Count service.
@@ -31,6 +32,7 @@ type CountClient interface {
 	IncFollowerCount(ctx context.Context, in *IncFollowerCountRequest, opts ...grpc.CallOption) (*IncFollowerCountResponse, error)
 	DecFollowerCount(ctx context.Context, in *DecFollowerCountRequest, opts ...grpc.CallOption) (*DecFollowerCountResponse, error)
 	GetFollowerCount(ctx context.Context, in *GetFollowerCountRequest, opts ...grpc.CallOption) (*GetFollowerCountResponse, error)
+	InsertUserCount(ctx context.Context, in *InsertUserCountRequest, opts ...grpc.CallOption) (*InsertUserCountResponse, error)
 }
 
 type countClient struct {
@@ -68,6 +70,15 @@ func (c *countClient) GetFollowerCount(ctx context.Context, in *GetFollowerCount
 	return out, nil
 }
 
+func (c *countClient) InsertUserCount(ctx context.Context, in *InsertUserCountRequest, opts ...grpc.CallOption) (*InsertUserCountResponse, error) {
+	out := new(InsertUserCountResponse)
+	err := c.cc.Invoke(ctx, Count_InsertUserCount_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CountServer is the server API for Count service.
 // All implementations must embed UnimplementedCountServer
 // for forward compatibility
@@ -75,6 +86,7 @@ type CountServer interface {
 	IncFollowerCount(context.Context, *IncFollowerCountRequest) (*IncFollowerCountResponse, error)
 	DecFollowerCount(context.Context, *DecFollowerCountRequest) (*DecFollowerCountResponse, error)
 	GetFollowerCount(context.Context, *GetFollowerCountRequest) (*GetFollowerCountResponse, error)
+	InsertUserCount(context.Context, *InsertUserCountRequest) (*InsertUserCountResponse, error)
 	mustEmbedUnimplementedCountServer()
 }
 
@@ -90,6 +102,9 @@ func (UnimplementedCountServer) DecFollowerCount(context.Context, *DecFollowerCo
 }
 func (UnimplementedCountServer) GetFollowerCount(context.Context, *GetFollowerCountRequest) (*GetFollowerCountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFollowerCount not implemented")
+}
+func (UnimplementedCountServer) InsertUserCount(context.Context, *InsertUserCountRequest) (*InsertUserCountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InsertUserCount not implemented")
 }
 func (UnimplementedCountServer) mustEmbedUnimplementedCountServer() {}
 
@@ -158,6 +173,24 @@ func _Count_GetFollowerCount_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Count_InsertUserCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(InsertUserCountRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CountServer).InsertUserCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Count_InsertUserCount_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CountServer).InsertUserCount(ctx, req.(*InsertUserCountRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Count_ServiceDesc is the grpc.ServiceDesc for Count service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -176,6 +209,10 @@ var Count_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFollowerCount",
 			Handler:    _Count_GetFollowerCount_Handler,
+		},
+		{
+			MethodName: "InsertUserCount",
+			Handler:    _Count_InsertUserCount_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -36,3 +36,8 @@ func (s *CountServer) GetFollowerCount(ctx context.Context, in *countclient.GetF
 	l := logic.NewGetFollowerCountLogic(ctx, s.svcCtx)
 	return l.GetFollowerCount(in)
 }
+
+func (s *CountServer) InsertUserCount(ctx context.Context, in *countclient.InsertUserCountRequest) (*countclient.InsertUserCountResponse, error) {
+	l := logic.NewInsertUserCountLogic(ctx, s.svcCtx)
+	return l.InsertUserCount(in)
+}
