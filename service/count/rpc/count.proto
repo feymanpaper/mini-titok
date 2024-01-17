@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package count;
+option go_package="./countclient";
+
+message IncFollowerCountRequest{
+  int64 UserId = 1; //用户id
+}
+
+message IncFollowerCountResponse{
+
+}
+
+message DecFollowerCountRequest{
+  int64 UserId = 1; //用户id
+}
+
+message DecFollowerCountResponse{}
+
+message GetFollowerCountRequest{
+  int64 UserId = 1; //用户id
+}
+
+message GetFollowerCountResponse{
+  int64 FollowerCount = 1; // 用户id
+}
+
+
+service Count {
+  rpc IncFollowerCount(IncFollowerCountRequest) returns (IncFollowerCountResponse);
+  rpc DecFollowerCount(DecFollowerCountRequest) returns (DecFollowerCountResponse);
+  rpc GetFollowerCount(GetFollowerCountRequest) returns (GetFollowerCountResponse);
+}

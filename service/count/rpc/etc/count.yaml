@@ -1,0 +1,35 @@
+Name: count.rpc
+ListenOn: 0.0.0.0:8081
+Mode: test
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: count.rpc
+
+Mysql:
+  DataSource: root:351681578wdp@tcp(127.0.0.1:3306)/titok_count?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+
+CacheRedis:
+  - Host: 127.0.0.1:6379
+    Type: node
+    Pass:
+
+
+Consul:
+  Host: 127.0.0.1:8500
+  Key: count-rpc
+  Meta:
+    env: test
+    service_group: feyman
+    service_name: count-rpc
+
+Prometheus:
+  Host: 0.0.0.0
+  Port: 9102
+  Path: /metrics
+
+Telemetry:
+  Name: count.rpc
+  Endpoint: http://localhost:14268/api/traces
+  Sampler: 1.0
+  Batcher: jaeger
