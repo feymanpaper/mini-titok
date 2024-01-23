@@ -26,7 +26,6 @@ func NewUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserInfo
 func (l *UserInfoLogic) UserInfo(req *types.UserInfoRequest) (resp *types.UserInfoResponse, err error) {
 	res, err := l.svcCtx.UserRpc.GetUserInfo(l.ctx, &userclient.UserInfoRequest{
 		UserId: req.Id,
-		Token:  req.Token,
 	})
 	if err != nil {
 		return nil, err

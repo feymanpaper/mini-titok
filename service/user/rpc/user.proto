@@ -24,7 +24,6 @@ message LoginResponse {
 
 message UserInfoRequest {
   int64 UserId = 1; // 用户id
-  string Token = 2; // 用户鉴权token
 }
 
 message UserInfoResponse {
@@ -44,6 +43,8 @@ message UserInfo {
   optional int64 WorkCount = 10; //作品数量
   optional int64 FavoriteCount = 11; //点赞数量
 }
+
+
 
 service User {
   rpc Login(LoginRequest) returns(LoginResponse);
