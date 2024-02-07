@@ -8,6 +8,7 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"hash/crc32"
 	"strconv"
 	"strings"
 	"time"
@@ -25,6 +26,10 @@ type (
 		FindCacheFollowPairListByFollowTime(ctx context.Context, uid, cursor, ps int64) ([]*FollowPair, error)
 		FindDBFollowPairListByFollowTime(ctx context.Context, fromId int64, followTime string, limit int) ([]*FollowPair, error)
 		AddCacheFollowPairList(ctx context.Context, userId int64, followPairList []*FollowPair) error
+		AddCacheFollowingCount(ctx context.Context, userId int64) error
+		AddCacheFollowingCountHash(ctx context.Context, userId int64) error
+		GetCacheFollowingCountHash(ctx context.Context, userId int64) (int64, error)
+		GetCacheFollowingCount(ctx context.Context, userId int64) (int64, error)
 	}
 
 	customFollowModel struct {
@@ -43,14 +48,8 @@ func NewFollowModel(conn sqlx.SqlConn, c cache.CacheConf) FollowModel {
 	}
 }
 
-func (m *customFollowModel) formatFollowKey(fromId int64, toId int64) string {
-	fromIdStr := strconv.FormatInt(fromId, 10)
-	toIdStr := strconv.FormatInt(toId, 10)
-	key := fromIdStr + ":" + toIdStr
-	return key
-}
 func (m *customFollowModel) FindBloomIsFollow(ctx context.Context, fromId int64, toId int64) (bool, error) {
-	key := m.formatFollowKey(fromId, toId)
+	key := formatFollowKey(fromId, toId)
 	exists, err := m.bloomFilter.Exists([]byte(key))
 	if err != nil {
 		return false, err
@@ -59,21 +58,12 @@ func (m *customFollowModel) FindBloomIsFollow(ctx context.Context, fromId int64,
 }
 
 func (m *customFollowModel) AddBloomFollow(ctx context.Context, fromId int64, toId int64) error {
-	key := m.formatFollowKey(fromId, toId)
+	key := formatFollowKey(fromId, toId)
 	err := m.bloomFilter.Add([]byte(key))
 	if err != nil {
 		return err
 	}
 	return nil
-}
-
-const (
-	prefixFollowList = "followList:%d"
-	FollowListExpire = 3600
-)
-
-func (m *customFollowModel) formatFollowListKey(uid int64) string {
-	return fmt.Sprintf(prefixFollowList, uid)
 }
 
 type FollowPair struct {
@@ -98,7 +88,7 @@ func (m *customFollowModel) FindDBFollowPairListByFollowTime(ctx context.Context
 }
 
 func (m *customFollowModel) FindCacheFollowPairListByFollowTime(ctx context.Context, uid, cursor, ps int64) ([]*FollowPair, error) {
-	key := m.formatFollowListKey(uid)
+	key := formatFollowListKey(uid)
 	b, err := m.redisConn.ExistsCtx(ctx, key)
 	if err != nil {
 		logx.Errorf("ExistsCtx key: %s error: %v", key, err)
@@ -134,7 +124,7 @@ func (m *customFollowModel) AddCacheFollowPairList(ctx context.Context, userId i
 	if len(followPairList) == 0 {
 		return nil
 	}
-	key := m.formatFollowListKey(userId)
+	key := formatFollowListKey(userId)
 	for _, followPair := range followPairList {
 		var score int64
 		if followPair.ToId != -1 {
@@ -149,4 +139,52 @@ func (m *customFollowModel) AddCacheFollowPairList(ctx context.Context, userId i
 		}
 	}
 	return m.redisConn.ExpireCtx(ctx, key, FollowListExpire)
+}
+
+func (m *customFollowModel) AddCacheFollowingCount(ctx context.Context, userId int64) error {
+	key := formatFollowCountKey(userId)
+	_, err := m.redisConn.Incr(key)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *customFollowModel) GetCacheFollowingCount(ctx context.Context, userId int64) (int64, error) {
+	key := formatFollowCountKey(userId)
+	followCountStr, err := m.redisConn.Get(key)
+	if err != nil {
+		return -1, err
+	}
+	followCount, err := strconv.ParseInt(followCountStr, 10, 64)
+	if err != nil {
+		return -1, err
+	}
+	return followCount, nil
+}
+
+func (m *customFollowModel) AddCacheFollowingCountHash(ctx context.Context, userId int64) error {
+	idstr := strconv.FormatInt(userId, 10)
+	cnt := crc32.ChecksumIEEE([]byte(idstr)) % BucketNum
+	key := formatFollowCountKeyHash(cnt)
+	_, err := m.redisConn.Hincrby(key, idstr, 1)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *customFollowModel) GetCacheFollowingCountHash(ctx context.Context, userId int64) (int64, error) {
+	idstr := strconv.FormatInt(userId, 10)
+	cnt := crc32.ChecksumIEEE([]byte(idstr)) % BucketNum
+	key := formatFollowCountKeyHash(cnt)
+	followCountStr, err := m.redisConn.Hget(key, idstr)
+	if err != nil {
+		return -1, err
+	}
+	followCount, err := strconv.ParseInt(followCountStr, 10, 64)
+	if err != nil {
+		return -1, err
+	}
+	return followCount, err
 }

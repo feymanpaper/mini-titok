@@ -3,9 +3,11 @@ package model
 import (
 	"context"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/logx"
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"sync"
 	"testing"
 	"time"
 )
@@ -80,4 +82,81 @@ func TestCustomFollowModel_AddCacheFollowPairList(t *testing.T) {
 	if err != nil {
 		fmt.Errorf(err.Error())
 	}
+}
+
+// 并发协程写redis
+func TestCustomFollowModel_AddCacheFollowingCount(t *testing.T) {
+	wg := sync.WaitGroup{}
+	wg.Add(100)
+	for i := 0; i < 100; i++ {
+		go func(i int) {
+			defer wg.Done()
+			for j := i*10000 + 1; j < (i+1)*10000; j++ {
+				err := TestFollowModel.AddCacheFollowingCount(context.Background(), 1)
+				if err != nil {
+					logx.Error("error")
+				}
+			}
+			logx.Info("goroutine finish")
+		}(i)
+	}
+	wg.Wait()
+	logx.Info("finish")
+}
+
+func TestCustomFollowModel_AddCacheFollowingCountHash(t *testing.T) {
+	wg := sync.WaitGroup{}
+	wg.Add(100)
+	for i := 0; i < 100; i++ {
+		go func(i int) {
+			defer wg.Done()
+			for j := i*10000 + 1; j < (i+1)*10000; j++ {
+				err := TestFollowModel.AddCacheFollowingCountHash(context.Background(), int64(j))
+				if err != nil {
+					logx.Error("error")
+				}
+			}
+			logx.Info("goroutine finish")
+		}(i)
+	}
+	wg.Wait()
+	logx.Info("finish")
+}
+
+func TestCustomFollowModel_GetCacheFollowingCountHash(t *testing.T) {
+	wg := sync.WaitGroup{}
+	wg.Add(100)
+	for i := 0; i < 100; i++ {
+		go func(i int) {
+			defer wg.Done()
+			for j := i*10000 + 1; j < (i+1)*10000; j++ {
+				_, err := TestFollowModel.GetCacheFollowingCountHash(context.Background(), 200009)
+				if err != nil {
+					logx.Error("error")
+				}
+			}
+			logx.Info("goroutine finish")
+		}(i)
+	}
+	wg.Wait()
+	logx.Info("finish")
+}
+
+func TestCustomFollowModel_GetCacheFollowingCount(t *testing.T) {
+	wg := sync.WaitGroup{}
+	wg.Add(100)
+	for i := 0; i < 100; i++ {
+		go func(i int) {
+			defer wg.Done()
+			for j := i*10000 + 1; j < (i+1)*10000; j++ {
+				_, err := TestFollowModel.GetCacheFollowingCount(context.Background(), 1)
+				if err != nil {
+					logx.Error("error")
+				}
+			}
+			logx.Info("goroutine finish")
+		}(i)
+	}
+	wg.Wait()
+	logx.Info("finish")
 }
