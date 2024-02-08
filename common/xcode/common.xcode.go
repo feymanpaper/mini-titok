@@ -23,4 +23,7 @@ var (
 	NotProviceJwt   = add(10202, "NotProviceJwt")
 	ExpireJwt       = add(10203, "ExpireJwt")
 	InvalidJwt      = add(10204, "InvalidJwt")
+
+	//105开头统计表示relation服务
+	InvalidFollowActionType = add(10510, "InvalidFollowActionType")
 )

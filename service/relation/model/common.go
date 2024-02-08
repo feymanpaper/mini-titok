@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"hash/crc32"
 	"strconv"
 )
 
@@ -22,4 +23,13 @@ func formatFollowCountKey(uid int64) string {
 
 func formatFollowCountKeyHash(uid uint32) string {
 	return fmt.Sprintf(prefixFollowCountHash, uid)
+}
+
+func formatFanCountKeyHash(uid uint32) string {
+	return fmt.Sprintf(prefixFanCountHash, uid)
+}
+
+func hashBucketNum(key string) uint32 {
+	num := crc32.ChecksumIEEE([]byte(key)) % BucketNum
+	return num
 }

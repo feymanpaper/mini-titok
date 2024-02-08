@@ -8,7 +8,6 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/cache"
 	"github.com/zeromicro/go-zero/core/stores/redis"
 	"github.com/zeromicro/go-zero/core/stores/sqlx"
-	"hash/crc32"
 	"strconv"
 	"strings"
 	"time"
@@ -22,14 +21,14 @@ type (
 	FollowModel interface {
 		followModel
 		FindBloomIsFollow(ctx context.Context, fromId int64, toId int64) (bool, error)
-		AddBloomFollow(ctx context.Context, fromId int64, toId int64) error
+		AddBloomIsFollow(ctx context.Context, fromId int64, toId int64) error
 		FindCacheFollowPairListByFollowTime(ctx context.Context, uid, cursor, ps int64) ([]*FollowPair, error)
 		FindDBFollowPairListByFollowTime(ctx context.Context, fromId int64, followTime string, limit int) ([]*FollowPair, error)
 		AddCacheFollowPairList(ctx context.Context, userId int64, followPairList []*FollowPair) error
-		AddCacheFollowingCount(ctx context.Context, userId int64) error
 		AddCacheFollowingCountHash(ctx context.Context, userId int64) error
 		GetCacheFollowingCountHash(ctx context.Context, userId int64) (int64, error)
-		GetCacheFollowingCount(ctx context.Context, userId int64) (int64, error)
+		//AddCacheFollowingCount(ctx context.Context, userId int64) error
+		//GetCacheFollowingCount(ctx context.Context, userId int64) (int64, error)
 	}
 
 	customFollowModel struct {
@@ -57,7 +56,7 @@ func (m *customFollowModel) FindBloomIsFollow(ctx context.Context, fromId int64,
 	return exists, nil
 }
 
-func (m *customFollowModel) AddBloomFollow(ctx context.Context, fromId int64, toId int64) error {
+func (m *customFollowModel) AddBloomIsFollow(ctx context.Context, fromId int64, toId int64) error {
 	key := formatFollowKey(fromId, toId)
 	err := m.bloomFilter.Add([]byte(key))
 	if err != nil {
@@ -141,32 +140,10 @@ func (m *customFollowModel) AddCacheFollowPairList(ctx context.Context, userId i
 	return m.redisConn.ExpireCtx(ctx, key, FollowListExpire)
 }
 
-func (m *customFollowModel) AddCacheFollowingCount(ctx context.Context, userId int64) error {
-	key := formatFollowCountKey(userId)
-	_, err := m.redisConn.Incr(key)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *customFollowModel) GetCacheFollowingCount(ctx context.Context, userId int64) (int64, error) {
-	key := formatFollowCountKey(userId)
-	followCountStr, err := m.redisConn.Get(key)
-	if err != nil {
-		return -1, err
-	}
-	followCount, err := strconv.ParseInt(followCountStr, 10, 64)
-	if err != nil {
-		return -1, err
-	}
-	return followCount, nil
-}
-
 func (m *customFollowModel) AddCacheFollowingCountHash(ctx context.Context, userId int64) error {
 	idstr := strconv.FormatInt(userId, 10)
-	cnt := crc32.ChecksumIEEE([]byte(idstr)) % BucketNum
-	key := formatFollowCountKeyHash(cnt)
+	num := hashBucketNum(idstr)
+	key := formatFollowCountKeyHash(num)
 	_, err := m.redisConn.Hincrby(key, idstr, 1)
 	if err != nil {
 		return err
@@ -176,8 +153,8 @@ func (m *customFollowModel) AddCacheFollowingCountHash(ctx context.Context, user
 
 func (m *customFollowModel) GetCacheFollowingCountHash(ctx context.Context, userId int64) (int64, error) {
 	idstr := strconv.FormatInt(userId, 10)
-	cnt := crc32.ChecksumIEEE([]byte(idstr)) % BucketNum
-	key := formatFollowCountKeyHash(cnt)
+	num := hashBucketNum(idstr)
+	key := formatFollowCountKeyHash(num)
 	followCountStr, err := m.redisConn.Hget(key, idstr)
 	if err != nil {
 		return -1, err
@@ -188,3 +165,25 @@ func (m *customFollowModel) GetCacheFollowingCountHash(ctx context.Context, user
 	}
 	return followCount, err
 }
+
+//func (m *customFollowModel) AddCacheFollowingCount(ctx context.Context, userId int64) error {
+//	key := formatFollowCountKey(userId)
+//	_, err := m.redisConn.Incr(key)
+//	if err != nil {
+//		return err
+//	}
+//	return nil
+//}
+
+//func (m *customFollowModel) GetCacheFollowingCount(ctx context.Context, userId int64) (int64, error) {
+//	key := formatFollowCountKey(userId)
+//	followCountStr, err := m.redisConn.Get(key)
+//	if err != nil {
+//		return -1, err
+//	}
+//	followCount, err := strconv.ParseInt(followCountStr, 10, 64)
+//	if err != nil {
+//		return -1, err
+//	}
+//	return followCount, nil
+//}

@@ -13,6 +13,7 @@ import (
 type ServiceContext struct {
 	Config            config.Config
 	FollowModel       model.FollowModel
+	FanModel          model.FanModel
 	UserRpc           user.User
 	SingleFlightGroup singleflight.Group
 }
@@ -22,6 +23,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config:      c,
 		FollowModel: model.NewFollowModel(conn, c.CacheRedis),
+		FanModel:    model.NewFanModel(conn, c.CacheRedis),
 		UserRpc:     user.NewUser(zrpc.MustNewClient(c.UserRpc, zrpc.WithUnaryClientInterceptor(interceptors.ClientErrorInterceptor()))),
 	}
 }
