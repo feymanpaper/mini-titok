@@ -14,13 +14,6 @@ CacheRedis:
     Type: node
     Pass:
 
-UserRpc:
-  Etcd:
-    Hosts:
-      - 127.0.0.1:2379
-    Key: user.rpc
-
-
 Consul:
   Host: 127.0.0.1:8500
   Key: relation-rpc
@@ -39,3 +32,8 @@ Telemetry:
   Endpoint: http://localhost:14268/api/traces
   Sampler: 1.0
   Batcher: jaeger
+
+KqPusherConf:
+  Brokers:
+    - 127.0.0.1:9092
+  Topic: relation-isFollow

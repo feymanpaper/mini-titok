@@ -22,9 +22,9 @@ func NewRelationServer(svcCtx *svc.ServiceContext) *RelationServer {
 	}
 }
 
-func (s *RelationServer) Action(ctx context.Context, in *relationclient.ActionRequest) (*relationclient.ActionResponse, error) {
-	l := logic.NewActionLogic(ctx, s.svcCtx)
-	return l.Action(in)
+func (s *RelationServer) FollowAction(ctx context.Context, in *relationclient.FollowActionRequest) (*relationclient.FollowActionResponse, error) {
+	l := logic.NewFollowActionLogic(ctx, s.svcCtx)
+	return l.FollowAction(in)
 }
 
 func (s *RelationServer) FollowList(ctx context.Context, in *relationclient.FollowListRequest) (*relationclient.FollowListResponse, error) {
@@ -35,4 +35,9 @@ func (s *RelationServer) FollowList(ctx context.Context, in *relationclient.Foll
 func (s *RelationServer) FansList(ctx context.Context, in *relationclient.FansListRequest) (*relationclient.FansListResponse, error) {
 	l := logic.NewFansListLogic(ctx, s.svcCtx)
 	return l.FansList(in)
+}
+
+func (s *RelationServer) GetRelationCount(ctx context.Context, in *relationclient.GetRelationCountRequest) (*relationclient.GetRelationCountResponse, error) {
+	l := logic.NewGetRelationCountLogic(ctx, s.svcCtx)
+	return l.GetRelationCount(in)
 }

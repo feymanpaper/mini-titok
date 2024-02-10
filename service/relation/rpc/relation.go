@@ -24,7 +24,6 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 	ctx := svc.NewServiceContext(c)
-
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
 		relationclient.RegisterRelationServer(grpcServer, server.NewRelationServer(ctx))
 

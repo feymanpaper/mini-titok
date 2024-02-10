@@ -19,18 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Relation_Action_FullMethodName     = "/relation.Relation/Action"
-	Relation_FollowList_FullMethodName = "/relation.Relation/FollowList"
-	Relation_FansList_FullMethodName   = "/relation.Relation/FansList"
+	Relation_FollowAction_FullMethodName     = "/relation.Relation/FollowAction"
+	Relation_FollowList_FullMethodName       = "/relation.Relation/FollowList"
+	Relation_FansList_FullMethodName         = "/relation.Relation/FansList"
+	Relation_GetRelationCount_FullMethodName = "/relation.Relation/GetRelationCount"
 )
 
 // RelationClient is the client API for Relation service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RelationClient interface {
-	Action(ctx context.Context, in *ActionRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+	FollowAction(ctx context.Context, in *FollowActionRequest, opts ...grpc.CallOption) (*FollowActionResponse, error)
 	FollowList(ctx context.Context, in *FollowListRequest, opts ...grpc.CallOption) (*FollowListResponse, error)
 	FansList(ctx context.Context, in *FansListRequest, opts ...grpc.CallOption) (*FansListResponse, error)
+	GetRelationCount(ctx context.Context, in *GetRelationCountRequest, opts ...grpc.CallOption) (*GetRelationCountResponse, error)
 }
 
 type relationClient struct {
@@ -41,9 +43,9 @@ func NewRelationClient(cc grpc.ClientConnInterface) RelationClient {
 	return &relationClient{cc}
 }
 
-func (c *relationClient) Action(ctx context.Context, in *ActionRequest, opts ...grpc.CallOption) (*ActionResponse, error) {
-	out := new(ActionResponse)
-	err := c.cc.Invoke(ctx, Relation_Action_FullMethodName, in, out, opts...)
+func (c *relationClient) FollowAction(ctx context.Context, in *FollowActionRequest, opts ...grpc.CallOption) (*FollowActionResponse, error) {
+	out := new(FollowActionResponse)
+	err := c.cc.Invoke(ctx, Relation_FollowAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -68,13 +70,23 @@ func (c *relationClient) FansList(ctx context.Context, in *FansListRequest, opts
 	return out, nil
 }
 
+func (c *relationClient) GetRelationCount(ctx context.Context, in *GetRelationCountRequest, opts ...grpc.CallOption) (*GetRelationCountResponse, error) {
+	out := new(GetRelationCountResponse)
+	err := c.cc.Invoke(ctx, Relation_GetRelationCount_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RelationServer is the server API for Relation service.
 // All implementations must embed UnimplementedRelationServer
 // for forward compatibility
 type RelationServer interface {
-	Action(context.Context, *ActionRequest) (*ActionResponse, error)
+	FollowAction(context.Context, *FollowActionRequest) (*FollowActionResponse, error)
 	FollowList(context.Context, *FollowListRequest) (*FollowListResponse, error)
 	FansList(context.Context, *FansListRequest) (*FansListResponse, error)
+	GetRelationCount(context.Context, *GetRelationCountRequest) (*GetRelationCountResponse, error)
 	mustEmbedUnimplementedRelationServer()
 }
 
@@ -82,14 +94,17 @@ type RelationServer interface {
 type UnimplementedRelationServer struct {
 }
 
-func (UnimplementedRelationServer) Action(context.Context, *ActionRequest) (*ActionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Action not implemented")
+func (UnimplementedRelationServer) FollowAction(context.Context, *FollowActionRequest) (*FollowActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FollowAction not implemented")
 }
 func (UnimplementedRelationServer) FollowList(context.Context, *FollowListRequest) (*FollowListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FollowList not implemented")
 }
 func (UnimplementedRelationServer) FansList(context.Context, *FansListRequest) (*FansListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FansList not implemented")
+}
+func (UnimplementedRelationServer) GetRelationCount(context.Context, *GetRelationCountRequest) (*GetRelationCountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRelationCount not implemented")
 }
 func (UnimplementedRelationServer) mustEmbedUnimplementedRelationServer() {}
 
@@ -104,20 +119,20 @@ func RegisterRelationServer(s grpc.ServiceRegistrar, srv RelationServer) {
 	s.RegisterService(&Relation_ServiceDesc, srv)
 }
 
-func _Relation_Action_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ActionRequest)
+func _Relation_FollowAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FollowActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RelationServer).Action(ctx, in)
+		return srv.(RelationServer).FollowAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Relation_Action_FullMethodName,
+		FullMethod: Relation_FollowAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RelationServer).Action(ctx, req.(*ActionRequest))
+		return srv.(RelationServer).FollowAction(ctx, req.(*FollowActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -158,6 +173,24 @@ func _Relation_FansList_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Relation_GetRelationCount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetRelationCountRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RelationServer).GetRelationCount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Relation_GetRelationCount_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RelationServer).GetRelationCount(ctx, req.(*GetRelationCountRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Relation_ServiceDesc is the grpc.ServiceDesc for Relation service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -166,8 +199,8 @@ var Relation_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*RelationServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Action",
-			Handler:    _Relation_Action_Handler,
+			MethodName: "FollowAction",
+			Handler:    _Relation_FollowAction_Handler,
 		},
 		{
 			MethodName: "FollowList",
@@ -176,6 +209,10 @@ var Relation_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FansList",
 			Handler:    _Relation_FansList_Handler,
+		},
+		{
+			MethodName: "GetRelationCount",
+			Handler:    _Relation_GetRelationCount_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

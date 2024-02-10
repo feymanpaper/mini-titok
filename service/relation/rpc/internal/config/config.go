@@ -12,6 +12,9 @@ type Config struct {
 	Mysql      struct {
 		DataSource string
 	}
-	Consul  consul.Conf
-	UserRpc zrpc.RpcClientConf
+	Consul       consul.Conf
+	KqPusherConf struct {
+		Brokers []string
+		Topic   string
+	}
 }

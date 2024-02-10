@@ -5,17 +5,21 @@ option go_package="./relationclient";
 
 message FollowListRequest{
   int64 UserId = 1;
-  int64 cursor = 2;
-  int64 pageSize = 3;
-  int32 sortType = 4;
-  int64 ToId = 5;
+  int64 Cursor = 2;
+  int64 PageSize = 3;
+  int64 EndId = 4;
+}
+
+message FollowIdPair{
+  int64 UserId = 1;
+  int64 CreateTime = 2;
 }
 
 message FollowListResponse{
-  repeated UserInfo UserList = 1;
-  bool isEnd = 2;
-  int64 cursor = 3;
-  int64 ToId = 4;
+  repeated FollowIdPair FollowIdPairList = 1;
+  bool IsEnd = 2;
+  int64 Cursor = 3;
+  int64 EndId = 4;
 }
 
 message FansListRequest{
@@ -23,35 +27,31 @@ message FansListRequest{
 }
 
 message FansListResponse{
-  repeated UserInfo UserList = 1;
+  repeated int64 UserIdList = 1;
 }
 
-message ActionRequest{
+message FollowActionRequest{
   int64 FromUserId = 1;
   int64 ToUserId = 2;
   int64 ActionType = 3;
 }
 
-message ActionResponse{
+message FollowActionResponse{
 
 }
 
-message UserInfo {
-  int64 Id = 1; // 用户id
-  string Name = 2; // 用户名称
-  optional int64 FollowCount = 3; // 关注总数
-  optional int64 FollowerCount = 4; // 粉丝总数
-  bool IsFollow = 5; // true-已关注，false-未关注
-  optional string Avatar = 6; //用户头像
-  optional string BackgroundImage = 7; //用户个人页顶部大图
-  optional string Signature = 8; //个人简介
-  optional int64 TotalFavorited = 9; //获赞数量
-  optional int64 WorkCount = 10; //作品数量
-  optional int64 FavoriteCount = 11; //点赞数量
+message GetRelationCountRequest{
+  int64 UserId = 1; //用户id
+}
+
+message GetRelationCountResponse{
+  int64 FollowCount = 1;
+  int64 FanCount = 2;
 }
 
 service Relation {
-  rpc Action(ActionRequest) returns (ActionResponse);
+  rpc FollowAction(FollowActionRequest) returns (FollowActionResponse);
   rpc FollowList(FollowListRequest) returns (FollowListResponse);
   rpc FansList(FansListRequest) returns (FansListResponse);
+  rpc GetRelationCount(GetRelationCountRequest) returns (GetRelationCountResponse);
 }

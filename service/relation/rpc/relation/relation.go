@@ -13,18 +13,21 @@ import (
 )
 
 type (
-	ActionRequest      = relationclient.ActionRequest
-	ActionResponse     = relationclient.ActionResponse
-	FansListRequest    = relationclient.FansListRequest
-	FansListResponse   = relationclient.FansListResponse
-	FollowListRequest  = relationclient.FollowListRequest
-	FollowListResponse = relationclient.FollowListResponse
-	UserInfo           = relationclient.UserInfo
+	FansListRequest          = relationclient.FansListRequest
+	FansListResponse         = relationclient.FansListResponse
+	FollowActionRequest      = relationclient.FollowActionRequest
+	FollowActionResponse     = relationclient.FollowActionResponse
+	FollowIdPair             = relationclient.FollowIdPair
+	FollowListRequest        = relationclient.FollowListRequest
+	FollowListResponse       = relationclient.FollowListResponse
+	GetRelationCountRequest  = relationclient.GetRelationCountRequest
+	GetRelationCountResponse = relationclient.GetRelationCountResponse
 
 	Relation interface {
-		Action(ctx context.Context, in *ActionRequest, opts ...grpc.CallOption) (*ActionResponse, error)
+		FollowAction(ctx context.Context, in *FollowActionRequest, opts ...grpc.CallOption) (*FollowActionResponse, error)
 		FollowList(ctx context.Context, in *FollowListRequest, opts ...grpc.CallOption) (*FollowListResponse, error)
 		FansList(ctx context.Context, in *FansListRequest, opts ...grpc.CallOption) (*FansListResponse, error)
+		GetRelationCount(ctx context.Context, in *GetRelationCountRequest, opts ...grpc.CallOption) (*GetRelationCountResponse, error)
 	}
 
 	defaultRelation struct {
@@ -38,9 +41,9 @@ func NewRelation(cli zrpc.Client) Relation {
 	}
 }
 
-func (m *defaultRelation) Action(ctx context.Context, in *ActionRequest, opts ...grpc.CallOption) (*ActionResponse, error) {
+func (m *defaultRelation) FollowAction(ctx context.Context, in *FollowActionRequest, opts ...grpc.CallOption) (*FollowActionResponse, error) {
 	client := relationclient.NewRelationClient(m.cli.Conn())
-	return client.Action(ctx, in, opts...)
+	return client.FollowAction(ctx, in, opts...)
 }
 
 func (m *defaultRelation) FollowList(ctx context.Context, in *FollowListRequest, opts ...grpc.CallOption) (*FollowListResponse, error) {
@@ -51,4 +54,9 @@ func (m *defaultRelation) FollowList(ctx context.Context, in *FollowListRequest,
 func (m *defaultRelation) FansList(ctx context.Context, in *FansListRequest, opts ...grpc.CallOption) (*FansListResponse, error) {
 	client := relationclient.NewRelationClient(m.cli.Conn())
 	return client.FansList(ctx, in, opts...)
+}
+
+func (m *defaultRelation) GetRelationCount(ctx context.Context, in *GetRelationCountRequest, opts ...grpc.CallOption) (*GetRelationCountResponse, error) {
+	client := relationclient.NewRelationClient(m.cli.Conn())
+	return client.GetRelationCount(ctx, in, opts...)
 }
