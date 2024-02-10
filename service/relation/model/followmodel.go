@@ -22,9 +22,10 @@ type (
 		followModel
 		// isfollow
 		AddBloomIsFollow(ctx context.Context, fromId int64, toId int64) error
-		AddDBIsFollow(ctx context.Context, fromId, toId int64) error
+		AddDBIsFollow(ctx context.Context, fromId, toId int64, time time.Time) error
 		FindBloomOrDBIsFollow(ctx context.Context, fromId, toId int64) (bool, error)
 		// follow_list
+		AddCacheFollowPair(ctx context.Context, userId int64, followPair *FollowPair) error
 		FindCacheFollowPairListByFollowTime(ctx context.Context, uid, cursor, ps int64) ([]*FollowPair, error)
 		FindDBFollowPairListByFollowTime(ctx context.Context, fromId int64, followTime string, limit int) ([]*FollowPair, error)
 		AddCacheFollowPairList(ctx context.Context, userId int64, followPairList []*FollowPair) error
@@ -32,6 +33,7 @@ type (
 		AddCacheFollowingCountHash(ctx context.Context, userId int64) error
 		GetCacheFollowingCountHash(ctx context.Context, userId int64) (int64, error)
 		//fan_list
+		AddCacheFanPair(ctx context.Context, userId int64, followPair *FollowPair) error
 		FindDBFanPairListByFollowTime(ctx context.Context, fromId int64, followTime string, limit int) ([]*FollowPair, error)
 		FindCacheFanPairListByFollowTime(ctx context.Context, uid, cursor, ps int64) ([]*FollowPair, error)
 		AddCacheFanPairList(ctx context.Context, userId int64, followPairList []*FollowPair) error
@@ -194,12 +196,19 @@ func (m *customFollowModel) AddCacheFollowPairList(ctx context.Context, userId i
 		if score < 0 {
 			score = 0
 		}
-		_, err := m.redisConn.ZaddCtx(ctx, key, score, strconv.Itoa(int(followPair.ToId)))
+		_, err := m.redisConn.Zadd(key, score, strconv.FormatInt(followPair.ToId, 10))
 		if err != nil {
 			return err
 		}
 	}
-	return m.redisConn.ExpireCtx(ctx, key, FollowListExpire)
+	return m.redisConn.Expire(key, FollowListExpire)
+}
+
+func (m *customFollowModel) AddCacheFollowPair(ctx context.Context, userId int64, followPair *FollowPair) error {
+	key := formatFollowListKey(userId)
+	_, err := m.redisConn.Zadd(key, followPair.CreateTime.Local().Unix(), strconv.FormatInt(followPair.ToId, 10))
+	logx.Error(err)
+	return err
 }
 
 func (m *customFollowModel) AddCacheFanPairList(ctx context.Context, userId int64, followPairList []*FollowPair) error {
@@ -215,12 +224,18 @@ func (m *customFollowModel) AddCacheFanPairList(ctx context.Context, userId int6
 		if score < 0 {
 			score = 0
 		}
-		_, err := m.redisConn.ZaddCtx(ctx, key, score, strconv.Itoa(int(followPair.ToId)))
+		_, err := m.redisConn.Zadd(key, score, strconv.Itoa(int(followPair.ToId)))
 		if err != nil {
 			return err
 		}
 	}
-	return m.redisConn.ExpireCtx(ctx, key, FollowListExpire)
+	return m.redisConn.Expire(key, FollowListExpire)
+}
+
+func (m *customFollowModel) AddCacheFanPair(ctx context.Context, userId int64, followPair *FollowPair) error {
+	key := formatFanListKey(userId)
+	_, err := m.redisConn.Zadd(key, followPair.CreateTime.Local().Unix(), strconv.FormatInt(followPair.ToId, 10))
+	return err
 }
 
 func (m *customFollowModel) AddCacheFollowingCountHash(ctx context.Context, userId int64) error {
@@ -249,16 +264,16 @@ func (m *customFollowModel) GetCacheFollowingCountHash(ctx context.Context, user
 	return followCount, err
 }
 
-func (m *customFollowModel) AddDBIsFollow(ctx context.Context, fromId, toId int64) error {
-	fieldSet := strings.Join([]string{"from_id", "to_id"}, ",")
-	followQuery := fmt.Sprintf("insert into %s (%s) values (?, ?)", m.followTable, fieldSet)
-	fanQuery := fmt.Sprintf("insert into %s (%s) values (?, ?)", m.fanTable, fieldSet)
+func (m *customFollowModel) AddDBIsFollow(ctx context.Context, fromId, toId int64, curTime time.Time) error {
+	fieldSet := strings.Join([]string{"from_id", "to_id", "create_time"}, ",")
+	followQuery := fmt.Sprintf("insert into %s (%s) values (?, ?, ?)", m.followTable, fieldSet)
+	fanQuery := fmt.Sprintf("insert into %s (%s) values (?, ?, ?)", m.fanTable, fieldSet)
 	err := m.conn.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
-		_, err := session.ExecCtx(ctx, followQuery, fromId, toId)
+		_, err := session.ExecCtx(ctx, followQuery, fromId, toId, curTime)
 		if err != nil {
 			return err
 		}
-		_, err = session.ExecCtx(ctx, fanQuery, toId, fromId)
+		_, err = session.ExecCtx(ctx, fanQuery, toId, fromId, curTime)
 		if err != nil {
 			return err
 		}

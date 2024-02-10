@@ -122,7 +122,7 @@ func TestCustomFollowModel_GetCacheFollowingCountHash(t *testing.T) {
 }
 
 func TestCustomFollowModel_AddDBIsFollow(t *testing.T) {
-	err := TestFollowModel.AddDBIsFollow(context.Background(), 2, 3)
+	err := TestFollowModel.AddDBIsFollow(context.Background(), 2, 3, time.Now())
 	if err != nil {
 		logx.Error(err)
 	}
@@ -173,4 +173,24 @@ func TestCustomFanModel_GetCacheFanCountHash(t *testing.T) {
 	}
 	wg.Wait()
 	logx.Info("finish")
+}
+
+func TestCustomFollowModel_AddCacheFollowPair(t *testing.T) {
+	err := TestFollowModel.AddCacheFollowPair(context.Background(), 99, &FollowPair{
+		ToId:       101,
+		CreateTime: time.Now(),
+	})
+	if err != nil {
+		logx.Error(err)
+	}
+}
+
+func TestCustomFollowModel_AddCacheFanPair(t *testing.T) {
+	err := TestFollowModel.AddCacheFanPair(context.Background(), 99, &FollowPair{
+		ToId:       100,
+		CreateTime: time.Now(),
+	})
+	if err != nil {
+		logx.Error(err)
+	}
 }

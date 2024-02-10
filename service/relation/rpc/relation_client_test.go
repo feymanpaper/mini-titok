@@ -48,15 +48,15 @@ func Test_SingeFollowAction(t *testing.T) {
 	})
 	client := relation.NewRelation(conn)
 	_, err := client.FollowAction(context.Background(), &relation.FollowActionRequest{
-		FromUserId: 1,
-		ToUserId:   2,
+		FromUserId: 120,
+		ToUserId:   121,
 		ActionType: 1,
 	})
-	_, err = client.FollowAction(context.Background(), &relation.FollowActionRequest{
-		FromUserId: 2,
-		ToUserId:   1,
-		ActionType: 1,
-	})
+	//_, err = client.FollowAction(context.Background(), &relation.FollowActionRequest{
+	//	FromUserId: 15,
+	//	ToUserId:   11,
+	//	ActionType: 1,
+	//})
 	if err != nil {
 		logx.Error(err)
 	}

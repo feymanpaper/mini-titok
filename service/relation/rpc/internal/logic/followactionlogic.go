@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"github.com/zeromicro/go-zero/core/threading"
 	"mini-titok/common/xcode"
+	"mini-titok/service/relation/model"
 	"mini-titok/service/relation/rpc/internal/types"
+	"time"
 
 	"mini-titok/service/relation/rpc/internal/svc"
 	"mini-titok/service/relation/rpc/relationclient"
@@ -42,7 +44,9 @@ func (l *FollowActionLogic) FollowAction(in *relationclient.FollowActionRequest)
 
 func (l *FollowActionLogic) followAction(fromId, toId int64) error {
 	//TODO 多协程优化
+	curTime := time.Now()
 	go func() {
+		//TODO batch操作
 		// 增加关注人数
 		err := l.svcCtx.FollowModel.AddCacheFollowingCountHash(l.ctx, fromId)
 		if err != nil {
@@ -50,6 +54,22 @@ func (l *FollowActionLogic) followAction(fromId, toId int64) error {
 		}
 		// 增加粉丝数
 		err = l.svcCtx.FollowModel.AddCacheFanCountHash(l.ctx, toId)
+		if err != nil {
+			logx.Error(err)
+		}
+		// 增加关注列表
+		err = l.svcCtx.FollowModel.AddCacheFollowPair(l.ctx, fromId, &model.FollowPair{
+			ToId:       toId,
+			CreateTime: curTime,
+		})
+		if err != nil {
+			logx.Error(err)
+		}
+		// 增加粉丝列表
+		err = l.svcCtx.FollowModel.AddCacheFanPair(l.ctx, toId, &model.FollowPair{
+			ToId:       fromId,
+			CreateTime: curTime,
+		})
 		if err != nil {
 			logx.Error(err)
 		}
@@ -64,8 +84,9 @@ func (l *FollowActionLogic) followAction(fromId, toId int64) error {
 	}()
 	// 发送kafka增加fromId-->toId关注关系到数据库, 异步
 	msg := types.AddIsFollowMsg{
-		FromId: fromId,
-		ToId:   toId,
+		FromId:  fromId,
+		ToId:    toId,
+		CurTime: curTime,
 	}
 	threading.GoSafe(func() {
 		data, err := json.Marshal(msg)
