@@ -2,6 +2,7 @@ package model
 
 const (
 	prefixFollowList      = "followList:%d"
+	prefixFanList         = "fanList:%d"
 	prefixFollowCount     = "followCount:%d"
 	prefixFollowCountHash = "followCountBucket:%d"
 	prefixFanCountHash    = "fanCountBucket:%d"

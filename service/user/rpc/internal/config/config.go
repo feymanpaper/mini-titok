@@ -11,7 +11,8 @@ type Config struct {
 	Mysql struct {
 		DataSource string
 	}
-	CacheRedis cache.CacheConf
-	Salt       string
-	Consul     consul.Conf
+	CacheRedis  cache.CacheConf
+	Salt        string
+	Consul      consul.Conf
+	RelationRpc zrpc.RpcClientConf
 }

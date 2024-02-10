@@ -17,3 +17,5 @@ select to_id from `follow` where from_id=3 and create_time < '2025-01-23 10:52:2
 select `id`,`from_id`,`to_id`,`create_time`,`delete_time` from `follow` where from_id=3;
 
 select * from follow;
+
+SELECT id FROM follow WHERE from_id=2 AND to_id=3 AND delete_time IS NULL

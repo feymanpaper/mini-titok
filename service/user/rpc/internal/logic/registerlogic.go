@@ -35,14 +35,9 @@ func (l *RegisterLogic) Register(in *userclient.RegisterRequest) (*userclient.Re
 	if err == model.ErrNotFound {
 		newUser := model.User{
 			Name:            in.UserName,
-			FollowCount:     0,
-			FollowerCount:   0,
 			Avatar:          "",
 			BackgroundImage: "",
 			Signature:       "",
-			TotalFavorited:  0,
-			WorkCount:       0,
-			FavoriteCount:   0,
 			Password:        cryptx.PasswordEncrypt(l.svcCtx.Config.Salt, in.Password),
 			CreateTime:      time.Time{},
 			UpdateTime:      time.Time{},

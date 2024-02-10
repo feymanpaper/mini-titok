@@ -17,7 +17,7 @@ type AddIsfollowLogic struct {
 	logx.Logger
 }
 
-func NewAddCountLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddIsfollowLogic {
+func NewAddIsFollowLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddIsfollowLogic {
 	return &AddIsfollowLogic{
 		ctx:    ctx,
 		svcCtx: svcCtx,
@@ -27,12 +27,12 @@ func NewAddCountLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddIsfol
 
 func (l *AddIsfollowLogic) Consume(key, val string) error {
 	fmt.Printf("get key: %s val: %s\n", key, val)
-	msg := types.AddCountMsg{}
+	var msg types.AddIsFollowMsg
 	err := json.Unmarshal([]byte(val), &msg)
 	if err != nil {
 		return err
 	}
-	err = l.svcCtx.FollowModel.AddDBIsFollow()
+	err = l.svcCtx.FollowModel.AddDBIsFollow(l.ctx, msg.FromId, msg.ToId)
 	if err != nil {
 		return err
 	}
@@ -41,6 +41,6 @@ func (l *AddIsfollowLogic) Consume(key, val string) error {
 
 func Consumers(ctx context.Context, svcCtx *svc.ServiceContext) []service.Service {
 	return []service.Service{
-		kq.MustNewQueue(svcCtx.Config.KqConsumerConf, NewAddCountLogic(ctx, svcCtx)),
+		kq.MustNewQueue(svcCtx.Config.KqConsumerConf, NewAddIsFollowLogic(ctx, svcCtx)),
 	}
 }

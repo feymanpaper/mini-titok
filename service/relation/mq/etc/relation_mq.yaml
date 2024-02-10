@@ -1,16 +1,16 @@
 Name: mq
 KqConsumerConf:
-  Name: follower_count-consumer
+  Name: relation-mq
   Brokers:
     - 127.0.0.1:9092
-  Group: group-follower_count
-  Topic: follower_count
+  Group: group-relation
+  Topic: relation-isFollow
   Offset: last
   Consumers: 1
   Processors: 1
 
 Mysql:
-  DataSource: root:351681578wdp@tcp(127.0.0.1:3306)/titok_count?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
+  DataSource: root:351681578wdp@tcp(127.0.0.1:3306)/titok_relation?charset=utf8mb4&parseTime=true&loc=Asia%2FShanghai
 
 CacheRedis:
   - Host: 127.0.0.1:6379

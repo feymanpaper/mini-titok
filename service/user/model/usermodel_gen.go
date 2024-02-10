@@ -22,8 +22,8 @@ var (
 	userRowsExpectAutoSet   = strings.Join(stringx.Remove(userFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
 	userRowsWithPlaceHolder = strings.Join(stringx.Remove(userFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
 
-	cacheUserIdPrefix   = "cache:user:id:"
-	cacheUserNamePrefix = "cache:user:name:"
+	cacheTitokUserUserIdPrefix   = "cache:titokUser:user:id:"
+	cacheTitokUserUserNamePrefix = "cache:titokUser:user:name:"
 )
 
 type (
@@ -43,14 +43,9 @@ type (
 	User struct {
 		Id              int64     `db:"id"`
 		Name            string    `db:"name"`             // 用户名称
-		FollowCount     int64     `db:"follow_count"`     // 用户关注的人个数
-		FollowerCount   int64     `db:"follower_count"`   // 用户的粉丝个数
 		Avatar          string    `db:"avatar"`           // 用户头像
 		BackgroundImage string    `db:"background_image"` // 用户个人页顶部大图
 		Signature       string    `db:"signature"`        // 用户简介
-		TotalFavorited  int64     `db:"total_favorited"`  // 用户获赞数量
-		WorkCount       int64     `db:"work_count"`       // 用户获赞数量
-		FavoriteCount   int64     `db:"favorite_count"`   // 用户点赞数量
 		Password        string    `db:"password"`         // 用户密码
 		CreateTime      time.Time `db:"create_time"`
 		UpdateTime      time.Time `db:"update_time"`
@@ -70,19 +65,19 @@ func (m *defaultUserModel) Delete(ctx context.Context, id int64) error {
 		return err
 	}
 
-	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, id)
-	userNameKey := fmt.Sprintf("%s%v", cacheUserNamePrefix, data.Name)
+	titokUserUserIdKey := fmt.Sprintf("%s%v", cacheTitokUserUserIdPrefix, id)
+	titokUserUserNameKey := fmt.Sprintf("%s%v", cacheTitokUserUserNamePrefix, data.Name)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 		return conn.ExecCtx(ctx, query, id)
-	}, userIdKey, userNameKey)
+	}, titokUserUserIdKey, titokUserUserNameKey)
 	return err
 }
 
 func (m *defaultUserModel) FindOne(ctx context.Context, id int64) (*User, error) {
-	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, id)
+	titokUserUserIdKey := fmt.Sprintf("%s%v", cacheTitokUserUserIdPrefix, id)
 	var resp User
-	err := m.QueryRowCtx(ctx, &resp, userIdKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
+	err := m.QueryRowCtx(ctx, &resp, titokUserUserIdKey, func(ctx context.Context, conn sqlx.SqlConn, v any) error {
 		query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", userRows, m.table)
 		return conn.QueryRowCtx(ctx, v, query, id)
 	})
@@ -97,9 +92,9 @@ func (m *defaultUserModel) FindOne(ctx context.Context, id int64) (*User, error)
 }
 
 func (m *defaultUserModel) FindOneByName(ctx context.Context, name string) (*User, error) {
-	userNameKey := fmt.Sprintf("%s%v", cacheUserNamePrefix, name)
+	titokUserUserNameKey := fmt.Sprintf("%s%v", cacheTitokUserUserNamePrefix, name)
 	var resp User
-	err := m.QueryRowIndexCtx(ctx, &resp, userNameKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
+	err := m.QueryRowIndexCtx(ctx, &resp, titokUserUserNameKey, m.formatPrimary, func(ctx context.Context, conn sqlx.SqlConn, v any) (i any, e error) {
 		query := fmt.Sprintf("select %s from %s where `name` = ? limit 1", userRows, m.table)
 		if err := conn.QueryRowCtx(ctx, &resp, query, name); err != nil {
 			return nil, err
@@ -117,12 +112,12 @@ func (m *defaultUserModel) FindOneByName(ctx context.Context, name string) (*Use
 }
 
 func (m *defaultUserModel) Insert(ctx context.Context, data *User) (sql.Result, error) {
-	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, data.Id)
-	userNameKey := fmt.Sprintf("%s%v", cacheUserNamePrefix, data.Name)
+	titokUserUserIdKey := fmt.Sprintf("%s%v", cacheTitokUserUserIdPrefix, data.Id)
+	titokUserUserNameKey := fmt.Sprintf("%s%v", cacheTitokUserUserNamePrefix, data.Name)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
-		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
-		return conn.ExecCtx(ctx, query, data.Name, data.FollowCount, data.FollowerCount, data.Avatar, data.BackgroundImage, data.Signature, data.TotalFavorited, data.WorkCount, data.FavoriteCount, data.Password)
-	}, userIdKey, userNameKey)
+		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, userRowsExpectAutoSet)
+		return conn.ExecCtx(ctx, query, data.Name, data.Avatar, data.BackgroundImage, data.Signature, data.Password)
+	}, titokUserUserIdKey, titokUserUserNameKey)
 	return ret, err
 }
 
@@ -132,17 +127,17 @@ func (m *defaultUserModel) Update(ctx context.Context, newData *User) error {
 		return err
 	}
 
-	userIdKey := fmt.Sprintf("%s%v", cacheUserIdPrefix, data.Id)
-	userNameKey := fmt.Sprintf("%s%v", cacheUserNamePrefix, data.Name)
+	titokUserUserIdKey := fmt.Sprintf("%s%v", cacheTitokUserUserIdPrefix, data.Id)
+	titokUserUserNameKey := fmt.Sprintf("%s%v", cacheTitokUserUserNamePrefix, data.Name)
 	_, err = m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, userRowsWithPlaceHolder)
-		return conn.ExecCtx(ctx, query, newData.Name, newData.FollowCount, newData.FollowerCount, newData.Avatar, newData.BackgroundImage, newData.Signature, newData.TotalFavorited, newData.WorkCount, newData.FavoriteCount, newData.Password, newData.Id)
-	}, userIdKey, userNameKey)
+		return conn.ExecCtx(ctx, query, newData.Name, newData.Avatar, newData.BackgroundImage, newData.Signature, newData.Password, newData.Id)
+	}, titokUserUserIdKey, titokUserUserNameKey)
 	return err
 }
 
 func (m *defaultUserModel) formatPrimary(primary any) string {
-	return fmt.Sprintf("%s%v", cacheUserIdPrefix, primary)
+	return fmt.Sprintf("%s%v", cacheTitokUserUserIdPrefix, primary)
 }
 
 func (m *defaultUserModel) queryPrimary(ctx context.Context, conn sqlx.SqlConn, v, primary any) error {

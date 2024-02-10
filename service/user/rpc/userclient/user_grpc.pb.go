@@ -19,9 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	User_Login_FullMethodName       = "/user.User/Login"
-	User_Register_FullMethodName    = "/user.User/Register"
-	User_GetUserInfo_FullMethodName = "/user.User/GetUserInfo"
+	User_Login_FullMethodName             = "/user.User/Login"
+	User_Register_FullMethodName          = "/user.User/Register"
+	User_GetUserInfo_FullMethodName       = "/user.User/GetUserInfo"
+	User_GetFollowUserList_FullMethodName = "/user.User/GetFollowUserList"
+	User_GetFanUserList_FullMethodName    = "/user.User/GetFanUserList"
 )
 
 // UserClient is the client API for User service.
@@ -31,6 +33,8 @@ type UserClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	GetUserInfo(ctx context.Context, in *UserInfoRequest, opts ...grpc.CallOption) (*UserInfoResponse, error)
+	GetFollowUserList(ctx context.Context, in *GetFollowUserListRequest, opts ...grpc.CallOption) (*GetFollowUserListResponse, error)
+	GetFanUserList(ctx context.Context, in *GetFanUserListRequest, opts ...grpc.CallOption) (*GetFanUserListResponse, error)
 }
 
 type userClient struct {
@@ -68,6 +72,24 @@ func (c *userClient) GetUserInfo(ctx context.Context, in *UserInfoRequest, opts 
 	return out, nil
 }
 
+func (c *userClient) GetFollowUserList(ctx context.Context, in *GetFollowUserListRequest, opts ...grpc.CallOption) (*GetFollowUserListResponse, error) {
+	out := new(GetFollowUserListResponse)
+	err := c.cc.Invoke(ctx, User_GetFollowUserList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) GetFanUserList(ctx context.Context, in *GetFanUserListRequest, opts ...grpc.CallOption) (*GetFanUserListResponse, error) {
+	out := new(GetFanUserListResponse)
+	err := c.cc.Invoke(ctx, User_GetFanUserList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
@@ -75,6 +97,8 @@ type UserServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	GetUserInfo(context.Context, *UserInfoRequest) (*UserInfoResponse, error)
+	GetFollowUserList(context.Context, *GetFollowUserListRequest) (*GetFollowUserListResponse, error)
+	GetFanUserList(context.Context, *GetFanUserListRequest) (*GetFanUserListResponse, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -90,6 +114,12 @@ func (UnimplementedUserServer) Register(context.Context, *RegisterRequest) (*Reg
 }
 func (UnimplementedUserServer) GetUserInfo(context.Context, *UserInfoRequest) (*UserInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserInfo not implemented")
+}
+func (UnimplementedUserServer) GetFollowUserList(context.Context, *GetFollowUserListRequest) (*GetFollowUserListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFollowUserList not implemented")
+}
+func (UnimplementedUserServer) GetFanUserList(context.Context, *GetFanUserListRequest) (*GetFanUserListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFanUserList not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -158,6 +188,42 @@ func _User_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_GetFollowUserList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFollowUserListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetFollowUserList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_GetFollowUserList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetFollowUserList(ctx, req.(*GetFollowUserListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_GetFanUserList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFanUserListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).GetFanUserList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_GetFanUserList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).GetFanUserList(ctx, req.(*GetFanUserListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -176,6 +242,14 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserInfo",
 			Handler:    _User_GetUserInfo_Handler,
+		},
+		{
+			MethodName: "GetFollowUserList",
+			Handler:    _User_GetFollowUserList_Handler,
+		},
+		{
+			MethodName: "GetFanUserList",
+			Handler:    _User_GetFanUserList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

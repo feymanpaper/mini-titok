@@ -24,10 +24,16 @@ message FollowListResponse{
 
 message FansListRequest{
   int64 UserId = 1;
+  int64 Cursor = 2;
+  int64 PageSize = 3;
+  int64 EndId = 4;
 }
 
 message FansListResponse{
-  repeated int64 UserIdList = 1;
+  repeated FollowIdPair FollowIdPairList = 1;
+  bool IsEnd = 2;
+  int64 Cursor = 3;
+  int64 EndId = 4;
 }
 
 message FollowActionRequest{

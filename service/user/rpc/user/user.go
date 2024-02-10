@@ -13,18 +13,24 @@ import (
 )
 
 type (
-	LoginRequest     = userclient.LoginRequest
-	LoginResponse    = userclient.LoginResponse
-	RegisterRequest  = userclient.RegisterRequest
-	RegisterResponse = userclient.RegisterResponse
-	UserInfo         = userclient.UserInfo
-	UserInfoRequest  = userclient.UserInfoRequest
-	UserInfoResponse = userclient.UserInfoResponse
+	GetFanUserListRequest     = userclient.GetFanUserListRequest
+	GetFanUserListResponse    = userclient.GetFanUserListResponse
+	GetFollowUserListRequest  = userclient.GetFollowUserListRequest
+	GetFollowUserListResponse = userclient.GetFollowUserListResponse
+	LoginRequest              = userclient.LoginRequest
+	LoginResponse             = userclient.LoginResponse
+	RegisterRequest           = userclient.RegisterRequest
+	RegisterResponse          = userclient.RegisterResponse
+	UserInfo                  = userclient.UserInfo
+	UserInfoRequest           = userclient.UserInfoRequest
+	UserInfoResponse          = userclient.UserInfoResponse
 
 	User interface {
 		Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 		Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 		GetUserInfo(ctx context.Context, in *UserInfoRequest, opts ...grpc.CallOption) (*UserInfoResponse, error)
+		GetFollowUserList(ctx context.Context, in *GetFollowUserListRequest, opts ...grpc.CallOption) (*GetFollowUserListResponse, error)
+		GetFanUserList(ctx context.Context, in *GetFanUserListRequest, opts ...grpc.CallOption) (*GetFanUserListResponse, error)
 	}
 
 	defaultUser struct {
@@ -51,4 +57,14 @@ func (m *defaultUser) Register(ctx context.Context, in *RegisterRequest, opts ..
 func (m *defaultUser) GetUserInfo(ctx context.Context, in *UserInfoRequest, opts ...grpc.CallOption) (*UserInfoResponse, error) {
 	client := userclient.NewUserClient(m.cli.Conn())
 	return client.GetUserInfo(ctx, in, opts...)
+}
+
+func (m *defaultUser) GetFollowUserList(ctx context.Context, in *GetFollowUserListRequest, opts ...grpc.CallOption) (*GetFollowUserListResponse, error) {
+	client := userclient.NewUserClient(m.cli.Conn())
+	return client.GetFollowUserList(ctx, in, opts...)
+}
+
+func (m *defaultUser) GetFanUserList(ctx context.Context, in *GetFanUserListRequest, opts ...grpc.CallOption) (*GetFanUserListResponse, error) {
+	client := userclient.NewUserClient(m.cli.Conn())
+	return client.GetFanUserList(ctx, in, opts...)
 }

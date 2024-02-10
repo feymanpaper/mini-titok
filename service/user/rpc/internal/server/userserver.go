@@ -36,3 +36,13 @@ func (s *UserServer) GetUserInfo(ctx context.Context, in *userclient.UserInfoReq
 	l := logic.NewGetUserInfoLogic(ctx, s.svcCtx)
 	return l.GetUserInfo(in)
 }
+
+func (s *UserServer) GetFollowUserList(ctx context.Context, in *userclient.GetFollowUserListRequest) (*userclient.GetFollowUserListResponse, error) {
+	l := logic.NewGetFollowUserListLogic(ctx, s.svcCtx)
+	return l.GetFollowUserList(in)
+}
+
+func (s *UserServer) GetFanUserList(ctx context.Context, in *userclient.GetFanUserListRequest) (*userclient.GetFanUserListResponse, error) {
+	l := logic.NewGetFanUserListLogic(ctx, s.svcCtx)
+	return l.GetFanUserList(in)
+}

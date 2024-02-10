@@ -33,23 +33,51 @@ message UserInfoResponse {
 message UserInfo {
   int64 Id = 1; // 用户id
   string Name = 2; // 用户名称
-  optional int64 FollowCount = 3; // 关注总数
-  optional int64 FollowerCount = 4; // 粉丝总数
+  int64 FollowCount = 3; // 关注总数
+  int64 FollowerCount = 4; // 粉丝总数
   bool IsFollow = 5; // true-已关注，false-未关注
-  optional string Avatar = 6; //用户头像
-  optional string BackgroundImage = 7; //用户个人页顶部大图
-  optional string Signature = 8; //个人简介
-  optional int64 TotalFavorited = 9; //获赞数量
-  optional int64 WorkCount = 10; //作品数量
-  optional int64 FavoriteCount = 11; //点赞数量
+  string Avatar = 6; //用户头像
+  string BackgroundImage = 7; //用户个人页顶部大图
+  string Signature = 8; //个人简介
+  int64 TotalFavorited = 9; //获赞数量
+  int64 WorkCount = 10; //作品数量
+  int64 FavoriteCount = 11; //点赞数量
 }
 
+message GetFollowUserListRequest{
+  int64 UserId = 1;
+  int64 Cursor = 2;
+  int64 PageSize = 3;
+  int64 EndId = 4;
+}
 
+message GetFollowUserListResponse{
+  repeated UserInfo FollowUserList = 1;
+  bool IsEnd = 2;
+  int64 Cursor = 3;
+  int64 EndId = 4;
+}
+
+message GetFanUserListRequest{
+  int64 UserId = 1;
+  int64 Cursor = 2;
+  int64 PageSize = 3;
+  int64 EndId = 4;
+}
+
+message GetFanUserListResponse{
+  repeated UserInfo FanUserList = 1;
+  bool IsEnd = 2;
+  int64 Cursor = 3;
+  int64 EndId = 4;
+}
 
 service User {
   rpc Login(LoginRequest) returns(LoginResponse);
   rpc Register(RegisterRequest) returns(RegisterResponse);
   rpc GetUserInfo(UserInfoRequest) returns(UserInfoResponse);
+  rpc GetFollowUserList(GetFollowUserListRequest) returns (GetFollowUserListResponse);
+  rpc GetFanUserList(GetFanUserListRequest) returns (GetFanUserListResponse);
 }
 
 

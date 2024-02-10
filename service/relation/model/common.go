@@ -17,6 +17,10 @@ func formatFollowListKey(uid int64) string {
 	return fmt.Sprintf(prefixFollowList, uid)
 }
 
+func formatFanListKey(uid int64) string {
+	return fmt.Sprintf(prefixFanList, uid)
+}
+
 func formatFollowCountKey(uid int64) string {
 	return fmt.Sprintf(prefixFollowCount, uid)
 }

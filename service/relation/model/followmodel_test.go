@@ -13,7 +13,6 @@ import (
 )
 
 var TestFollowModel FollowModel
-var TestFanModel FanModel
 
 const GoroutineNum = 100
 const OneGoroutineTaskNum = 100
@@ -37,17 +36,11 @@ func TestMain(m *testing.M) {
 	// 创建 ClusterConf 实例
 	clusterConf := cache.ClusterConf{nodeConf}
 	TestFollowModel = NewFollowModel(sqlconn, clusterConf)
-	TestFanModel = NewFanModel(sqlconn, clusterConf)
 	m.Run()
 }
 
 func TestFollowModelBloom(t *testing.T) {
-	fmt.Println(TestFollowModel.FindBloomIsFollow(context.Background(), 1, 2))
 	fmt.Println(TestFollowModel.AddBloomIsFollow(context.Background(), 1, 2))
-	fmt.Println(TestFollowModel.FindBloomIsFollow(context.Background(), 1, 2))
-	fmt.Println(TestFollowModel.FindBloomIsFollow(context.Background(), 3, 4))
-	fmt.Println(TestFollowModel.FindBloomIsFollow(context.Background(), 5, 6))
-	fmt.Println(TestFollowModel.FindBloomIsFollow(context.Background(), 6, 7))
 }
 
 func TestCustomFollowModel_FindFollowIdListByFollowTime(t *testing.T) {
@@ -128,41 +121,56 @@ func TestCustomFollowModel_GetCacheFollowingCountHash(t *testing.T) {
 	logx.Info("finish")
 }
 
-//func TestCustomFollowModel_GetCacheFollowingCount(t *testing.T) {
-//	wg := sync.WaitGroup{}
-//	wg.Add(GoroutineNum)
-//	for i := 0; i < GoroutineNum; i++ {
-//		go func(i int) {
-//			defer wg.Done()
-//			for j := i*OneGoroutineTaskNum + 1; j < (i+1)*OneGoroutineTaskNum; j++ {
-//				_, err := TestFollowModel.GetCacheFollowingCount(context.Background(), 1)
-//				if err != nil {
-//					logx.Error("error")
-//				}
-//			}
-//			logx.Info("goroutine finish")
-//		}(i)
-//	}
-//	wg.Wait()
-//	logx.Info("finish")
-//}
+func TestCustomFollowModel_AddDBIsFollow(t *testing.T) {
+	err := TestFollowModel.AddDBIsFollow(context.Background(), 2, 3)
+	if err != nil {
+		logx.Error(err)
+	}
+}
 
-// 并发协程写redis
-//func TestCustomFollowModel_AddCacheFollowingCount(t *testing.T) {
-//	wg := sync.WaitGroup{}
-//	wg.Add(GoroutineNum)
-//	for i := 0; i < GoroutineNum; i++ {
-//		go func(i int) {
-//			defer wg.Done()
-//			for j := i*OneGoroutineTaskNum + 1; j < (i+1)*OneGoroutineTaskNum; j++ {
-//				err := TestFollowModel.AddCacheFollowingCount(context.Background(), 1)
-//				if err != nil {
-//					logx.Error("error")
-//				}
-//			}
-//			logx.Info("goroutine finish")
-//		}(i)
-//	}
-//	wg.Wait()
-//	logx.Info("finish")
-//}
+func TestCustomFollowModel_FindBloomOrDBIsFollow(t *testing.T) {
+	isFollow, err := TestFollowModel.FindBloomOrDBIsFollow(context.Background(), 2, 3)
+	if err != nil {
+		logx.Error(err)
+	}
+	logx.Info(isFollow)
+}
+
+func TestCustomFanModel_AddCacheFanCountHash(t *testing.T) {
+	wg := sync.WaitGroup{}
+	wg.Add(GoroutineNum)
+	for i := 0; i < GoroutineNum; i++ {
+		go func(i int) {
+			defer wg.Done()
+			for j := i*OneGoroutineTaskNum + 1; j <= (i+1)*OneGoroutineTaskNum; j++ {
+				err := TestFollowModel.AddCacheFanCountHash(context.Background(), int64(j))
+				if err != nil {
+					logx.Error("error")
+				}
+			}
+			logx.Info("goroutine finish")
+		}(i)
+	}
+	wg.Wait()
+	logx.Info("finish")
+}
+
+func TestCustomFanModel_GetCacheFanCountHash(t *testing.T) {
+	wg := sync.WaitGroup{}
+	wg.Add(GoroutineNum)
+	for i := 0; i < GoroutineNum; i++ {
+		go func(i int) {
+			defer wg.Done()
+			for j := i*OneGoroutineTaskNum + 1; j <= (i+1)*OneGoroutineTaskNum; j++ {
+				cnt, err := TestFollowModel.GetCacheFanCountHash(context.Background(), 2)
+				if err != nil {
+					logx.Error("error")
+				}
+				logx.Info(cnt)
+			}
+			logx.Info("goroutine finish")
+		}(i)
+	}
+	wg.Wait()
+	logx.Info("finish")
+}

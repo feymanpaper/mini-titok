@@ -28,21 +28,6 @@ func NewFollowListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Follow
 	}
 }
 
-type mergePage struct {
-	Id              int64
-	Name            string
-	FollowCount     int64
-	FollowerCount   int64
-	IsFollow        bool
-	Avatar          string
-	BackgroundImage string
-	Signature       string
-	TotalFavorited  int64
-	WorkCount       int64
-	FavoriteCount   int64
-	followTime      time.Time
-}
-
 func (l *FollowListLogic) FollowList(in *relationclient.FollowListRequest) (*relationclient.FollowListResponse, error) {
 	if in.Cursor == 0 {
 		in.Cursor = time.Now().Unix()
